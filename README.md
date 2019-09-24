@@ -4,7 +4,7 @@ Lambda python 3.7 runtime path is:
 use pyenv-ubuntu.sh to get python installed
 
 then do
-
+```
 $ pyenv virtualenv 3.7.4 aws-dev
 $ pyenv activate aws-dev
 
@@ -14,7 +14,7 @@ $ pip install -t ./python <packages>	# like pip install -t /python flask request
 
 # compress the files into a zip
 $ zip -r aws-python.zip ./python
-
+```
 Upload zip to Lambda layer
 
 Lambda unzips into /opt, hence the /python folder when zipping
