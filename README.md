@@ -13,7 +13,7 @@ $ mkdir python
 $ pip install -t ./python <packages>	# like pip install -t /python flask requests
 
 # compress the files into a zip
-$ zip -r aws-python.zip ./python
+$ zip -r-q aws-python.zip ./python
 ```
 Upload zip to Lambda layer
 
