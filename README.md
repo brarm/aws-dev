@@ -1,7 +1,21 @@
 Lambda python 3.7 runtime path is:
 ['/var/task', '/opt/python/lib/python3.7/site-packages', '/opt/python', '/var/runtime', '/var/lang/lib/python37.zip', '/var/lang/lib/python3.7', '/var/lang/lib/python3.7/lib-dynload', '/var/lang/lib/python3.7/site-packages', '/opt/python/lib/python3.7/site-packages', '/opt/python']
 
-use pyenv-ubuntu.sh to get python installed
+If system has python3.7 installed, can do
+
+```
+$ pip install virutalenv
+$ virtualenv --python=python3.7 aws-venv
+$ source aws-venv/bin/activate
+
+$ mkdir python
+$ pip install -t python/ <packages>			# like pip install -t python/ flask requests
+$ zip -r -q aws-packages.zip python/		# zip --recursive --quiet
+```
+
+If no python3.7 installed, can use the following
+
+`./pyenv-ubuntu.sh` to get pyenv installed
 
 then do
 ```
