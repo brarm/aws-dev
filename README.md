@@ -4,7 +4,7 @@ Lambda python 3.7 runtime path is:
 If system has python3.7 installed, can do
 
 ```
-$ pip install virutalenv
+$ pip install --user virutalenv
 $ virtualenv --python=python3.7 aws-venv
 $ source aws-venv/bin/activate
 
