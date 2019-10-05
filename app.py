@@ -5,6 +5,7 @@ from flask import Response
 from flask import jsonify
 from flask import render_template
 from flask import g
+from flask import send_from_directory
 
 import os
 import json
@@ -22,16 +23,16 @@ def index():
         request.script_root = url_for('index', _external=True)
     return render_template('index.html')
 
-@app.route('/kba-quiz', methods=['POST'])
-def kba_quiz():
+@app.route('/kba-questions', methods=['POST'])
+def kba_questions():
     raw_data = request.form
     kba_string = (raw_data.to_dict())['payload']
     kba_questions = json.loads(kba_string)['kba_questions']
 
     print(json.dumps(kba_questions, indent=2))
 
-    return render_template('kba-quiz.html', kba_questions=kba_questions)
-    return jsonify({'message': 'kba-quiz'})
+    return render_template('kba-questions.html', kba_questions=kba_questions)
+    return jsonify({'message': 'kba-questions'})
 
 @app.route('/hello', methods = ['GET'])
 def api_hello():
@@ -54,6 +55,12 @@ def not_found(error=None):
     resp.status_code = 404
     
     return resp
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, 'static'),
+        'favicon.ico')
 
 @app.route('/echo', methods= ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
 def api_echo():
