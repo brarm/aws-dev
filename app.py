@@ -32,7 +32,7 @@ def kba_questions():
     print(json.dumps(kba_questions, indent=2))
 
     return render_template('kba-questions.html', kba_questions=kba_questions)
-    return jsonify({'message': 'kba-questions'})
+    #return jsonify({'message': 'kba-questions'})
 
 @app.route('/hello', methods = ['GET'])
 def api_hello():
@@ -54,7 +54,7 @@ def not_found(error=None):
     resp = jsonify(message)
     resp.status_code = 404
     
-    return resp
+    return render_template('not-found.html')
 
 @app.route('/favicon.ico')
 def favicon():
