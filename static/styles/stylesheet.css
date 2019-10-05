@@ -39,6 +39,6 @@ hr {
   margin-bottom: 2rem;
 }
 
-.rounded {
-  border-radius: 20px;
+#content .rounded {
+  border-radius: 20px!important;
 }
