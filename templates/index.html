@@ -1,38 +1,11 @@
 {% extends "layout.html" %}
-{% block title %}Home{% endblock %}
-{% block head %}
-  {{ super() }}
-{% endblock %}
+
+{% block title %}IDV{% endblock %}
+
 {% block content %}
-
-  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="#">WB IDV Pilot</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/kba-questions">KBA</a>
-          </li>
-        </ul>
-      </div>
-  </nav>
-
-<!--     # Incoming PII Information
-         # First Name, Last Name, MI (done)
-         # Street Address
-         # City
-         # State, Postal Code
-         # SSN (no dashes)
-         # DOB (MM/DD/YYYY) -->
-
   <div class="container" id="canvas">
     <div class="row justify-content-center">
-      <div class="col-md-6 mx-auto form-box">
+      <div class="col-sm-8 form-box rounded">
         <div class="row justify-content-center"><h4 class="mb-3">ID Verification</h4></div>
         <form class="needs-validation" id="user-info-form" novalidate>
           <div class="row">
@@ -116,14 +89,10 @@
               </div>
             </div>
           </div>
-
-          <!-- <hr class="mb-4"> -->
           <button class="btn btn-primary btn-lg btn-block" type="submit" id="send-info-btn">Submit</button>
         </form>
       </div>
     </div>
   </div>
-  <!-- <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.js"></script>
-  <script src="http://ajax.aspnetcdn.com/ajax/mvc/3.0/jquery.validate.unobtrusive.min.js"></script> -->
     <script type="text/javascript" src="{{url_for('static', filename='js/script.js') }}"></script>
 {% endblock content %}

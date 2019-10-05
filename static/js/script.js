@@ -8,7 +8,6 @@ window.addEventListener('load', function() {
 			return false;
 		}
 		auth_string = "Bearer " + resp["access_token"];
-		console.log(auth_string)
 	});
 	return cognito_resp;
 });
@@ -47,10 +46,7 @@ $('#kba-form').submit(function(e) {
 			payload["outWalletAnswer" + questionNumber] = kbaAnswer;
 		}
 	}
-
-	console.log(payload);
-	alert(JSON.stringify(payload));
-
+	// console.log(payload);
 	$.ajax({
  		url: "https://pv48iufl8k.execute-api.us-west-1.amazonaws.com/Test/kba-post",
  		type: "POST",
@@ -60,7 +56,7 @@ $('#kba-form').submit(function(e) {
  		},
  		data : JSON.stringify({"answers":payload}),
  		success: function(resp){
- 			console.log(JSON.stringify(resp));
+ 			// console.log(JSON.stringify(resp));
  			if ("success" in resp) {
  				alert("The user has passed the KBA!");
  			} else {
@@ -88,16 +84,8 @@ $('#user-info-form').submit(function(e) {
 		e.stopPropagation();
 		return false;
 	}
-	
 	received = $('input');
-	console.log(received);
-	// <!-- # Incoming PII Information
- //         # First Name, Last Name, MI (done)
- //         # Street Address
- //         # City
- //         # State, Postal Code
- //         # SSN (no dashes)
- //         # DOB (MM/DD/YYYY) -->
+	
  	var firstName = $('input#firstName').val();
  	var lastName = $('input#lastName').val();
  	var middleInitial = $('input#middleInitial').val();
@@ -170,10 +158,9 @@ function generateCognitoToken(callback) {
 };
 
 function redirectToKba(resp) {
-	console.log(resp);
-
 	var st = JSON.stringify(resp);
-	var url = 'http://localhost:5000/kba-quiz';
+	var origin = location.origin
+	var url = origin + '/kba-questions';
 
 	var form = document.createElement("form");
 	form.setAttribute("action", url);
