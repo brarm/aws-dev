@@ -57,7 +57,7 @@ $('#kba-form').submit(function(e) {
  		data : JSON.stringify({"answers":payload}),
  		success: function(resp){
  			// console.log(JSON.stringify(resp));
- 			if ("success" in resp) {
+ 			if (resp.includes("success")) {
  				alert("The user has passed the KBA!");
  			} else {
  				alert("The user's identity has not been confirmed");
