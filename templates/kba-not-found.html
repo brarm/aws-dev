@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block title %}KBA Not Found{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="jumbotron">
+    
+    <div class="container">
+      <div class="row justify-content-center">
+        <h1 class="display-3">KBA Not Found</h1>
+      </div>
+      <div class="row justify-content-center">  
+        <p>It appears you have navigated to this page without submitting ID Verification</p>
+        <p>Please click the button below to begin the IDV Flow</p>
+      </div>
+      <div class="row justify-content-center">
+        <p><a class="btn btn-primary btn-lg" href="/" role="button">Begin &raquo;</a></p>
+      </div>
+    </div>  
+  </div>
+</div>
+
+    <script type="text/javascript" src="{{url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}

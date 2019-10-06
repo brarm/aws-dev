@@ -23,27 +23,18 @@ def index():
         request.script_root = url_for('index', _external=True)
     return render_template('index.html')
 
-@app.route('/kba-questions', methods=['POST'])
+@app.route('/kba-questions', methods=['POST', 'GET'])
 def kba_questions():
-    raw_data = request.form
-    kba_string = (raw_data.to_dict())['payload']
-    kba_questions = json.loads(kba_string)['kba_questions']
+    if request.method == 'GET':
+        return render_template('kba-not-found.html')
+    else:
+        raw_data = request.form
+        kba_string = (raw_data.to_dict())['payload']
+        kba_questions = json.loads(kba_string)['kba_questions']
+        print(json.dumps(kba_questions))
 
-    print(json.dumps(kba_questions, indent=2))
-
-    return render_template('kba-questions.html', kba_questions=kba_questions)
+        return render_template('kba-questions.html', kba_questions=kba_questions)
     #return jsonify({'message': 'kba-questions'})
-
-@app.route('/hello', methods = ['GET'])
-def api_hello():
-    data = {
-        'hello' : 'world',
-        'number'    : 3
-    }
-    js = json.dumps(data)
-
-    resp = Response(js, status=200, mimetype='application/json')
-    resp.headers['Link'] = 'http://localhost'
 
 @app.errorhandler(404)
 def not_found(error=None):
@@ -61,17 +52,6 @@ def favicon():
     return send_from_directory(
         os.path.join(app.root_path, 'static'),
         'favicon.ico')
-
-@app.route('/echo', methods= ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
-def api_echo():
-    data = {
-        'message' : 'ECHO: ' + request.method
-    }
-
-    resp = jsonify(data)
-    resp.status_code = 200
-    resp.headers['Access-Control-Allow-Origin'] = '*'
-    return resp
 
 def check_auth(username, password):
     return username =='admin' and password == 'secret'
@@ -109,4 +89,4 @@ def secrets():
     return jsonify(message)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(threaded=True)
