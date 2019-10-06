@@ -36,6 +36,16 @@ def kba_questions():
         return render_template('kba-questions.html', kba_questions=kba_questions)
     #return jsonify({'message': 'kba-questions'})
 
+@app.route('/kba-success', methods=['POST'])
+def kba_success():
+    raw_data = request.form
+    # handle risk score parsing here
+    return render_template('kba-success.html')
+
+@app.route('/kba-failed', methods=['POST'])
+def kba_failed():
+    return render_template('kba-failed.html')
+
 @app.errorhandler(404)
 def not_found(error=None):
     message = {

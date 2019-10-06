@@ -57,6 +57,14 @@ $('#kba-form').submit(function(e) {
 			payload["outWalletAnswer" + questionNumber] = kbaAnswer;
 		}
 	}
+
+	// show the error page manually
+	// if the last selection on the page is chosen
+	var showFailed = false;
+	if(payload['outWalletAnswer5'] == 5) {
+		showFailed = true;
+	}
+
 	// console.log(payload);
 	$.ajax({
  		url: "https://pv48iufl8k.execute-api.us-west-1.amazonaws.com/Test/kba-post",
@@ -67,12 +75,7 @@ $('#kba-form').submit(function(e) {
  		},
  		data : JSON.stringify({"answers":payload}),
  		success: function(resp){
- 			// console.log(JSON.stringify(resp));
- 			if (resp.includes("success")) {
- 				alert("The user has passed the KBA!");
- 			} else {
- 				alert("The user's identity has not been confirmed");
- 			}
+ 			redirectFromKba(resp, showFailed);
  		},
  		error: function(XMLHttpRequest, textStatus, errorThrown) {
         	alert("Status: " + textStatus); alert("Error: " + errorThrown);
@@ -185,6 +188,31 @@ function redirectToKba(resp) {
 	kba.setAttribute("value", st)
 	
 	form.appendChild(kba);
+	$('body').append(form);
+	form.submit();
+}
+
+function redirectFromKba(resp, showFailed) {
+	var origin = location.origin;
+	var form = document.createElement("form");
+	var url = ''
+	form.setAttribute("method", "post");
+	form.setAttribute("style", "display:none")
+
+	if(showFailed) {
+		var url = origin + '/kba-failed';
+	} else if (resp.includes("success")) {
+		var url = origin + '/kba-success';
+		var st = JSON.stringify(resp);
+		var kbaResp = document.createElement("input");
+		kbaResp.setAttribute("type", "text");
+		kbaResp.setAttribute("name", "payload");
+		kbaResp.setAttribute("value", st)
+	} else {
+		var url = origin + '/kba-failed';
+	}
+
+	form.setAttribute("action", url);
 	$('body').append(form);
 	form.submit();
 }
