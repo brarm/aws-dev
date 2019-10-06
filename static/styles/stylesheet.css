@@ -76,7 +76,11 @@ hr {
 }
 
 .question-text {
-	margin-left: auto;
-    padding-bottom: 10px;
-    font-weight: 500;
+	margin: auto;
+  padding-bottom: 10px;
+  font-weight: 500;
+}
+
+p {
+  text-align: center;
 }

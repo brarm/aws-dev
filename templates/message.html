@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container align-self-center">
+  <div class="jumbotron">
+    
+    <div class="container">
+      <div class="row justify-content-center">
+      	{% block main_message %}
+        {% endblock main_message %}
+      </div>
+      <div class="row justify-content-center">  
+        {% block sub_message %}
+        {% endblock sub_message %}
+      </div>
+      <div class="row justify-content-center">
+        <p><a class="btn btn-primary btn-md" href="/" role="button">IDV &raquo;</a></p>
+      </div>
+    </div>  
+  </div>
+</div>
+{% endblock content %}

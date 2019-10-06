@@ -1,25 +1,12 @@
-{% extends "layout.html" %}
+{% extends "message.html" %}
 
-{% block title %}Not Found{% endblock %}
+{% block title %}KBA Success{% endblock %}
 
-{% block content %}
+{% block main_message %}
+<h1 class="display-3 error">Four-oh-Four</h1>
+{% endblock main_message %}
 
-<div class="container align-self-center">
-  <div class="jumbotron">
-    
-    <div class="container">
-      <div class="row justify-content-center">
-        <h1 class="display-3 error">Four-oh-Four</h1>
-      </div>
-      <div class="row justify-content-center">  
-        <p>404, that page is not available. Click below to go to the IDV Form</p>
-      </div>
-      <div class="row justify-content-center">
-        <p><a class="btn btn-primary btn-lg" href="/" role="button">Begin &raquo;</a></p>
-      </div>
-    </div>  
-  </div>
-</div>
-
-    <script type="text/javascript" src="{{url_for('static', filename='js/script.js') }}"></script>
-{% endblock %}
+{% block sub_message %}
+<p>404, that page is not available.<br/>
+Click below to start an IDV Flow</p>
+{% endblock sub_message %}
