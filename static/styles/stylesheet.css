@@ -1,7 +1,6 @@
 body {
-  padding-bottom: 2rem;
-  padding-top: 4.5rem;
   background-color: gainsboro;
+  padding-top: 56px;
 }
 
 h3 {
@@ -19,6 +18,18 @@ h3 {
 
 .container {
   max-width: 960px;
+}
+
+#content {
+	display: block;
+	overflow: auto;
+	height: 100%
+}
+
+#canvas {
+	padding-top: 15px;
+    padding-bottom: 15px;
+    overflow: auto;
 }
 
 .border-top { border-top: 1px solid #e5e5e5; }
@@ -39,6 +50,32 @@ hr {
   margin-bottom: 2rem;
 }
 
-#content .rounded {
+.rounded {
   border-radius: 20px!important;
+}
+
+.success {
+	border-color: green;
+    border-radius: 15px;
+    border-width: 2px;
+    border-style: solid;
+    padding: .5em;
+}
+
+.error {
+	border-color: red;
+    border-radius: 15px;
+    border-width: 2px;
+    border-style: solid;
+    padding: .5em;
+}
+
+.jumbotron {
+	margin-bottom: 0px;
+}
+
+.question-text {
+	margin-left: auto;
+    padding-bottom: 10px;
+    font-weight: 500;
 }

@@ -1,6 +1,17 @@
 var auth_string = ""
 
 window.addEventListener('load', function() {
+	// set active link based on page title
+	var title = $('title').text();
+	var links = $('.nav-link');
+	if(title.includes("IDV")) {
+		links[0].parentElement.classList.add("active");
+	} else if (title.includes("KBA Form")) {
+		links[1].parentElement.classList.add("active");
+	};
+})
+
+window.addEventListener('load', function() {
 	var cognito_resp = generateCognitoToken(function(resp) {
 		// console.log(resp);
 		if ("error" in resp) {
