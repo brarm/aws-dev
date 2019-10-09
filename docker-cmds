@@ -2,4 +2,4 @@
 docker build -t webapp . --no-cache
 
 # Run container from image
-docker run -p 80:80 --rm -d --name webapp-run
+docker run -p 80:80 --rm -d --name webapp-run webapp:latest
