@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from flask import Flask
 from flask import url_for
 from flask import request
@@ -99,4 +101,4 @@ def secrets():
     return jsonify(message)
 
 if __name__ == '__main__':
-    app.run(threaded=True)
+    app.run(host='0.0.0.0', port=80, debug=True, threaded=True)
