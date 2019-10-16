@@ -1,12 +1,19 @@
 {% extends "message.html" %}
 
-{% block title %}KBA Success{% endblock %}
+{% block title %}KBA Failed{% endblock %}
 
 {% block main_message %}
 <h1 class="display-3 error">KBA Failed</h1>
 {% endblock main_message %}
 
 {% block sub_message %}
-<p>The user has not passed the KBA Verification<br/>
-Click below to restart the IDV Flow</p>
+{% for message_line in message_lines %}
+<div class="row justify-content-center">  
+	{{ message_line }}
+</div>
+{% endfor %}
+<!-- <p>The user has not passed the KBA Verification<br/> -->
+<div class="row justify-content-center">  
+Click below to restart the IDV Flow
+</div>
 {% endblock sub_message %}
