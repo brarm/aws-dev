@@ -178,9 +178,9 @@ function redirectFromIDV(resp, firstName) {
 	if(kbaresultCode == 0) {
 		redirectToKba(resp, firstName);
 	} else {
-		console.log(resp) 	// just for debugging, sanity-check
+		console.log("RESP: ", resp) 	// just for debugging, sanity-check
 		message = resp['message'];
-		console.log(message)
+		console.log("message: ", message)
 		var origin = location.origin
 		var url = origin + '/kba-failed';
 		
@@ -232,7 +232,13 @@ function redirectFromKba(resp, showFailed) {
 	form.setAttribute("style", "display:none")
 
 	if(showFailed) {
+		var message = 'The KBA was unsucessful. Please contact ZenDesk.'
 		var url = origin + '/kba-failed';
+		var kbaResp = document.createElement("input");
+		kbaResp.setAttribute("type", "text");
+		kbaResp.setAttribute("name", "payload");
+		kbaResp.setAttribute("value", message)
+		form.appendChild(kbaResp)
 	} else if (resp.includes("success")) {
 		var url = origin + '/kba-success';
 		var st = JSON.stringify(resp);
@@ -240,6 +246,7 @@ function redirectFromKba(resp, showFailed) {
 		kbaResp.setAttribute("type", "text");
 		kbaResp.setAttribute("name", "payload");
 		kbaResp.setAttribute("value", st)
+		form.appendChild(kbaResp)
 	} else {
 		var url = origin + '/kba-failed';
 	}

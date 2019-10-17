@@ -45,6 +45,7 @@ def kba_success():
 @app.route('/kba-failed', methods=['POST'])
 def kba_failed():
     raw_data = request.form
+    print(raw_data)
     message = (raw_data.to_dict())['payload']
     print(message)
     message_lines = message.split(';;')
@@ -104,4 +105,4 @@ def secrets():
     return jsonify(message)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80, debug=True, threaded=True)
+    app.run(host='0.0.0.0', port=80, debug=False, threaded=True)
