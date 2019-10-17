@@ -19,6 +19,7 @@ window.addEventListener('load', function() {
 			return false;
 		}
 		auth_string = "Bearer " + resp["access_token"];
+		// console.log(auth_string)
 	});
 	return cognito_resp;
 });
@@ -67,7 +68,8 @@ $('#kba-form').submit(function(e) {
 
 	// console.log(payload);
 	$.ajax({
- 		url: "https://pv48iufl8k.execute-api.us-west-1.amazonaws.com/Test/kba-post",
+ 		// url: "https://pv48iufl8k.execute-api.us-west-1.amazonaws.com/Test/kba-post",
+ 		url: "https://l421z6y49d.execute-api.eu-west-2.amazonaws.com/Dev/kba-post",
  		type: "POST",
   		contentType: "application/json",
  		headers: {
@@ -121,11 +123,12 @@ $('#user-info-form').submit(function(e) {
  		"state" : state,
  		"postal" : postal,
  		"ssn" : ssn,
- 		"dob" : dob,	
+ 		"dob" : dob
  	};
 
  	$.ajax({
- 		url: "https://pv48iufl8k.execute-api.us-west-1.amazonaws.com/Test/pii-check-post",
+ 		// url: "https://pv48iufl8k.execute-api.us-west-1.amazonaws.com/Test/pii-check-post",
+ 		url: "https://l421z6y49d.execute-api.eu-west-2.amazonaws.com/Dev/pii-check-post",
  		type: "POST",
   		contentType: "json",
  		headers: {
@@ -133,8 +136,7 @@ $('#user-info-form').submit(function(e) {
  		},
  		data : JSON.stringify({"user_info":userInfo}),
  		success: function(resp){
- 			alert("User " + firstName + " authenticated");
- 			redirectToKba(resp);
+ 			redirectFromIDV(resp, firstName);
  		},
  		error: function(XMLHttpRequest, textStatus, errorThrown) {
         	alert("Status: " + textStatus); alert("Error: " + errorThrown);
@@ -155,7 +157,7 @@ function generateCognitoToken(callback) {
 		url: "https://test-api-gw-auth.auth.us-east-1.amazoncognito.com/oauth2/token",
 		type: "POST",
 		data: "grant_type=client_credentials",
-		async: false,
+		// async: false,
 		headers: {
 			"Content-Type": "application/x-www-form-urlencoded",
 			"Authorization": headerString
@@ -171,7 +173,37 @@ function generateCognitoToken(callback) {
 	});
 };
 
-function redirectToKba(resp) {
+function redirectFromIDV(resp, firstName) {
+	kbaresultCode = resp['kba_result_code'];
+	if(kbaresultCode == 0) {
+		redirectToKba(resp, firstName);
+	} else {
+		console.log("RESP: ", resp) 	// just for debugging, sanity-check
+		message = resp['message'];
+		console.log("message: ", message)
+		var origin = location.origin
+		var url = origin + '/kba-failed';
+		
+		var form = document.createElement("form");
+		form.setAttribute("action", url);
+		form.setAttribute("method", "post");
+		form.setAttribute("style", "display:none")
+		form.setAttribute("id", "kba-fail");
+
+		var input = document.createElement("input");
+		input.setAttribute("type", "text");
+		input.setAttribute("name", "payload");
+		input.setAttribute("value", message)
+
+		form.appendChild(input);
+		$('body').append(form);
+		form.submit();
+	}
+}
+
+function redirectToKba(resp, firstName) {
+	alert("User " + firstName + " authenticated");
+	
 	var st = JSON.stringify(resp);
 	var origin = location.origin
 	var url = origin + '/kba-questions';
@@ -200,7 +232,13 @@ function redirectFromKba(resp, showFailed) {
 	form.setAttribute("style", "display:none")
 
 	if(showFailed) {
+		var message = 'The KBA was unsucessful. Please contact ZenDesk.'
 		var url = origin + '/kba-failed';
+		var kbaResp = document.createElement("input");
+		kbaResp.setAttribute("type", "text");
+		kbaResp.setAttribute("name", "payload");
+		kbaResp.setAttribute("value", message)
+		form.appendChild(kbaResp)
 	} else if (resp.includes("success")) {
 		var url = origin + '/kba-success';
 		var st = JSON.stringify(resp);
@@ -208,6 +246,7 @@ function redirectFromKba(resp, showFailed) {
 		kbaResp.setAttribute("type", "text");
 		kbaResp.setAttribute("name", "payload");
 		kbaResp.setAttribute("value", st)
+		form.appendChild(kbaResp)
 	} else {
 		var url = origin + '/kba-failed';
 	}

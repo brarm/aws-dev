@@ -33,10 +33,8 @@ def kba_questions():
         raw_data = request.form
         kba_string = (raw_data.to_dict())['payload']
         kba_questions = json.loads(kba_string)['kba_questions']
-        print(json.dumps(kba_questions))
 
         return render_template('kba-questions.html', kba_questions=kba_questions)
-    #return jsonify({'message': 'kba-questions'})
 
 @app.route('/kba-success', methods=['POST'])
 def kba_success():
@@ -46,7 +44,13 @@ def kba_success():
 
 @app.route('/kba-failed', methods=['POST'])
 def kba_failed():
-    return render_template('kba-failed.html')
+    raw_data = request.form
+    print(raw_data)
+    message = (raw_data.to_dict())['payload']
+    print(message)
+    message_lines = message.split(';;')
+    print(message_lines)
+    return render_template('kba-failed.html', message_lines=message_lines)
 
 @app.errorhandler(404)
 def not_found(error=None):
@@ -101,4 +105,4 @@ def secrets():
     return jsonify(message)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80, debug=True, threaded=True)
+    app.run(host='0.0.0.0', port=80, debug=False, threaded=True)
