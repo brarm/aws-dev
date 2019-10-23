@@ -85,7 +85,7 @@ Resources:
 
             chmod +x get-repo-uri.py
             $(aws ecr get-login --no-include-email --region ${AWS::Region})
-            repo_url=$(aws ecr describe-repositories | ./get-repo-uri.py')
+            repo_url=$(aws ecr describe-repositories | ./get-repo-uri.py)
 
             docker tag wb-app/docker-images:latest "$repo_url:latest"
             docker push "$repo_url:latest"
