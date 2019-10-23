@@ -19,12 +19,13 @@ Resources:
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-        - Effect: Allow
+        - 
+          Effect: Allow
           Principal:
             Service:
-            - ec2.amazonaws.com
+              - ec2.amazonaws.com
           Action:
-          - sts:AssumeRole
+            - sts:AssumeRole
       Path: "/"
       # Policies: 
       #   Ref: myDummyRolePolicies
@@ -34,7 +35,8 @@ Resources:
     Properties:
       Path: "/"
       Roles:
-      - Ref: myDummyRole
+        - 
+          Ref: myDummyRole
 
   myDummyRolePolicies:
     Type: AWS::IAM::Policy
@@ -42,11 +44,13 @@ Resources:
       PolicyName: myDummy
       PolicyDocument:
         Statement:
-        - Effect: Allow
+        - 
+          Effect: Allow
           Action: "ecr*"
           Resource: "*"
       Roles:
-      - Ref: myDummyRole
+        - 
+          Ref: myDummyRole
 
   WBIDVDefaultECR:
     Type: AWS::ECR::Repository
