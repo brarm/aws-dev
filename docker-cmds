@@ -1,5 +1,11 @@
-# Build docker image from dockerfile
-docker build -t webapp . --no-cache
+# login to aws ecr
+$(aws ecr get-login --no-include-email --region us-west-1)
 
-# Run container from image
-docker run -p 80:80 --rm -d --name webapp-run webapp:latest
+# Build docker image from dockerfile
+docker build --no-cache -t wb-app/docker-images .
+
+# Tag with URL of ECR
+docker tag wb-app/docker-images:latest 799480191532.dkr.ecr.us-west-1.amazonaws.com/wb-app/docker-images:latest
+
+# Push container to ECR
+docker push 799480191532.dkr.ecr.us-west-1.amazonaws.com/wb-app/docker-images:latest
