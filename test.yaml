@@ -19,11 +19,12 @@ Resources:
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-        - Effect: Allow
-          Action:
-          - ecr:*
-          - cloudtrail:LookupEvents
-          Resource: "*"
+          - 
+            Effect: Allow
+            Action:
+              - ecr:*
+              - cloudtrail:LookupEvents
+            Resource: "*"
       Path: "/"
   EC2UpdaterProfile:
     Type: AWS::IAM::InstanceProfile
