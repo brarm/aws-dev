@@ -29,24 +29,24 @@ Resources:
       # Policies: 
       #   Ref: myDummyRolePolicies
     
-    myDummyInstanceProfile:
-      Type: AWS::IAM::InstanceProfile
-      Properties:
-        Path: "/"
-        Roles:
-        - Ref: myDummyRole
+  myDummyInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: myDummyRole
 
-    myDummyRolePolicies:
-      Type: AWS::IAM::Policy
-      Properties:
-        PolicyName: myDummy
-        PolicyDocument:
-          Statement:
-          - Effect: Allow
-            Action: "ecr*"
-            Resource: "*"
-        Roles:
-        - Ref: myDummyRole
+  myDummyRolePolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: myDummy
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action: "ecr*"
+          Resource: "*"
+      Roles:
+      - Ref: myDummyRole
 
   WBIDVDefaultECR:
     Type: AWS::ECR::Repository
