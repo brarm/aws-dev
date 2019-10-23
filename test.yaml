@@ -15,19 +15,19 @@ Parameters:
 
 Resources:
   myDummyRole:
-      Type: AWS::IAM::Role
-      Properties:
-        AssumeRolePolicyDocument:
-          Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-              - ec2.amazonaws.com
-            Action:
-            - sts:AssumeRole
-        Path: "/"
-        # Policies: 
-        #   Ref: myDummyRolePolicies
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      # Policies: 
+      #   Ref: myDummyRolePolicies
     
     myDummyInstanceProfile:
       Type: AWS::IAM::InstanceProfile
