@@ -46,7 +46,7 @@ Resources:
         Statement:
         - 
           Effect: Allow
-          Action: "ecr*"
+          Action: "ecr:*"
           Resource: "*"
       Roles:
         - 
