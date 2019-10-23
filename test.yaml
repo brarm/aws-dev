@@ -14,24 +14,39 @@ Parameters:
   #   Type: 'List<AWS::EC2::SecurityGroup::Id>'
 
 Resources:
-  EC2UpdaterRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - 
-            Effect: Allow
+  myDummyRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - ec2.amazonaws.com
             Action:
-              - ecr:*
-              - cloudtrail:LookupEvents
+            - sts:AssumeRole
+        Path: "/"
+        # Policies: 
+        #   Ref: myDummyRolePolicies
+    
+    myDummyInstanceProfile:
+      Type: AWS::IAM::InstanceProfile
+      Properties:
+        Path: "/"
+        Roles:
+        - Ref: myDummyRole
+
+    myDummyRolePolicies:
+      Type: AWS::IAM::Policy
+      Properties:
+        PolicyName: myDummy
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action: "ecr*"
             Resource: "*"
-      Path: "/"
-  EC2UpdaterProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties:
-      Path: "/"
-      Roles:
-      - Ref: EC2UpdaterRole
+        Roles:
+        - Ref: myDummyRole
 
   WBIDVDefaultECR:
     Type: AWS::ECR::Repository
@@ -47,7 +62,7 @@ Resources:
       KeyName: test
       Monitoring: true
       IamInstanceProfile:
-        Ref: EC2UpdaterProfile
+        Ref: myDummyInstanceProfile
       # InstanceInitiatedShutdownBehavior: terminate
       UserData:
         "Fn::Base64":
