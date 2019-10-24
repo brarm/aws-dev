@@ -22,10 +22,7 @@ for t_p in template_parameters:
     p_key = "ParameterKey"
     p_value = "ParameterValue"
     input_parameter[p_key] = t_p[p_key]
-    if t_p['ParameterType'].startswith('List'):
-        input_parameter[p_value] = []
-    else:
-        input_parameter[p_value] = ""
+    input_parameter[p_value] = ""
     input_parameters.append(input_parameter)
 
 print(input_parameters)
@@ -46,11 +43,11 @@ print(default_sg)
 
 for i_p in input_parameters:
     if i_p['ParameterKey'] == "DefaultSubnets":
-        i_p['ParameterValue'].extend(default_subnet[0:2])
+        i_p['ParameterValue'] += ','.join(default_subnet[0:2])
     elif i_p['ParameterKey'] == 'DefaultVPC':
-        i_p['ParameterValue'].extend(default_vpc)
+        i_p['ParameterValue'] += default_vpc[0]
     elif i_p['ParameterKey'] == 'DefaultSecurityGroup':
-        i_p['ParameterValue'].extend(default_sg)
+        i_p['ParameterValue'] += default_sg[0]
 
 print(input_parameters)
 
