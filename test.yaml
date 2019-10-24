@@ -1,92 +1,70 @@
 Parameters:
-  LatestAmiId:
-    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
-    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
-    # Default: ami-0bce08e823ed38bdd
+  DefaultVPC:
+    Type: 'List<AWS::EC2::VPC::Id>'
 
-  # DefaultVPC:
-  #   Type: 'List<AWS::EC2::VPC::Id>'
+  DefaultSubnets:
+    Type: 'List<AWS::EC2::Subnet::Id>'
 
-  # DefaultSubnets:
-  #   Type: 'List<AWS::EC2::Subnet::Id>'
-
-  # DefaultSecurityGroup:
-  #   Type: 'List<AWS::EC2::SecurityGroup::Id>'
+  DefaultSecurityGroup:
+    Type: 'List<AWS::EC2::SecurityGroup::Id>'
 
 Resources:
-  myDummyRole:
+  ECSTaskExecutionRole:
     Type: AWS::IAM::Role
-    Properties:
+    DependsOn: ECSTaskExecutionPolicy
+    Properties: 
       AssumeRolePolicyDocument:
-        Statement:
-        - 
+        Statement: 
+         - 
           Effect: Allow
           Principal:
             Service:
-              - ec2.amazonaws.com
-          Action:
-            - sts:AssumeRole
-      Path: "/"
-      # Policies: 
-      #   Ref: myDummyRolePolicies
-    
-  myDummyInstanceProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties:
-      Path: "/"
-      Roles:
-        - 
-          Ref: myDummyRole
+              - ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+        -
+          Ref: ECSTaskExecutionPolicy
 
-  myDummyRolePolicies:
+  ECSTaskExecutionPolicy:
     Type: AWS::IAM::Policy
     Properties:
-      PolicyName: myDummy
+      PolicyName: ECSTaskExecutionPolicy
       PolicyDocument:
         Statement:
-        - 
+        -
           Effect: Allow
-          Action: "ecr:*"
+          Action:
+            - "ecr:GetAuthorizationToken"
+              "ecr:BatchCheckLayerAvailability"
+              "ecr:GetDownloadUrlForLayer"
+              "ecr:BatchGetImage"
+              "logs:CreateLogStream"
+              "logs:PutLogEvents"
           Resource: "*"
-      Roles:
-        - 
-          Ref: myDummyRole
-
-  WBIDVDefaultECR:
-    Type: AWS::ECR::Repository
+      
+  WBIDVDefaultECSTask:
+    Type: AWS::ECS::TaskDefinition
+    DependsOn: ECSTaskExecutionPolicy
     Properties: 
-      RepositoryName: wb-app/docker-images
-
-  EC2Updater:
-    Type: AWS::EC2::Instance
-    DependsOn: WBIDVDefaultECR
-    Properties:
-      ImageId: !Ref LatestAmiId
-      InstanceType: t2.micro
-      KeyName: test
-      Monitoring: true
-      IamInstanceProfile:
-        Ref: myDummyInstanceProfile
-      # InstanceInitiatedShutdownBehavior: terminate
-      UserData:
-        "Fn::Base64":
-          !Sub |
-            #!/bin/bash -x
-            exec > /tmp/part-001.log 2>&1
-            yum update -y
-            yum install -y git
-            amazon-linux-extras install -y docker
-            service docker start
-            # usermod -a -G docker ec2-user
-            # CHANGE clone URL
-            git clone --single-branch --branch deploy https://github.com/brarm/aws-dev
-            cd ./aws-dev
-            docker build --no-cache -t wb-app/docker-images .
-
-            chmod +x get-repo-uri.py
-            $(aws ecr get-login --no-include-email --region ${AWS::Region})
-            repo_url=$(aws ecr describe-repositories --region ${AWS::Region} | ./get-repo-uri.py)
-
-            docker tag wb-app/docker-images:latest "$repo_url:latest"
-            docker push "$repo_url:latest"
-            # shutdown -h now
+      ContainerDefinitions: 
+        - Cpu: 256
+          Essential: true
+          HealthCheck: 
+            Command: 
+              - CMD-SHELL
+                curl -f http://localhost || exit 1
+            Interval: 30
+            Retries: 5
+            StartPeriod: 30
+            Timeout: 60
+          Image: wb-app/docker-images:latest
+          LogConfiguration: 
+            LogDriver: awslogs
+          MemoryReservation: 200
+          Name: wb-fargate-container
+          PortMappings: 
+           - ContainerPort: 80
+      Cpu: '1024'
+      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      Memory: '2048'
+      NetworkMode: awsvpc

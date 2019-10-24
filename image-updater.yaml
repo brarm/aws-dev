@@ -1,0 +1,80 @@
+Parameters:
+  LatestAmiId:
+    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+
+Resources:
+  ImageUpdaterRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - 
+          Effect: Allow
+          Principal:
+            Service:
+              - ec2.amazonaws.com
+          Action:
+            - sts:AssumeRole
+      Path: "/"
+    
+  ImageUpdaterProfile:
+    Type: AWS::IAM::InstanceProfile
+    DependsOn: ImageUpdaterRole
+    Properties:
+      Path: "/"
+      Roles:
+        - 
+          Ref: ImageUpdaterRole
+
+  ImageUpdaterRolePolicies:
+    Type: AWS::IAM::Policy
+    DependsOn: ImageUpdaterRole
+    Properties:
+      PolicyName: ImageUpdaterPolicy
+      PolicyDocument:
+        Statement:
+        - 
+          Effect: Allow
+          Action: "ecr:*"
+          Resource: "*"
+      Roles:
+        - 
+          Ref: ImageUpdaterRole
+
+  WBIDVDefaultECR:
+    Type: AWS::ECR::Repository
+    Properties: 
+      RepositoryName: wb-app/docker-images
+
+  ImageUpdater:
+    Type: AWS::EC2::Instance
+    DependsOn: WBIDVDefaultECR
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: t2.micro
+      KeyName: test
+      IamInstanceProfile:
+        Ref: ImageUpdaterProfile
+      InstanceInitiatedShutdownBehavior: terminate
+      UserData:
+        "Fn::Base64":
+          !Sub |
+            #!/bin/bash -x
+            exec > /tmp/part-001.log 2>&1
+            yum update -y
+            yum install -y git
+            amazon-linux-extras install -y docker
+            service docker start
+            # CHANGE clone URL
+            git clone --single-branch --branch deploy https://github.com/brarm/aws-dev
+            cd ./aws-dev
+            docker build --no-cache -t wb-app/docker-images .
+
+            chmod +x get-repo-uri.py
+            $(aws ecr get-login --no-include-email --region ${AWS::Region})
+            repo_url=$(aws ecr describe-repositories --region ${AWS::Region} | ./get-repo-uri.py)
+
+            docker tag wb-app/docker-images:latest "$repo_url:latest"
+            docker push "$repo_url:latest"
+            shutdown -h now
