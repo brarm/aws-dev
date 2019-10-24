@@ -11,7 +11,6 @@ Parameters:
 Resources:
   ECSTaskExecutionRole:
     Type: AWS::IAM::Role
-    DependsOn: ECSTaskExecutionPolicy
     Properties: 
       AssumeRolePolicyDocument:
         Statement: 
@@ -21,12 +20,10 @@ Resources:
             Service:
               - ecs-tasks.amazonaws.com
           Action: sts:AssumeRole
-      Policies:
-        -
-          Ref: ECSTaskExecutionPolicy
 
   ECSTaskExecutionPolicy:
     Type: AWS::IAM::Policy
+    DependsOn: ECSTaskExecutionRole
     Properties:
       PolicyName: ECSTaskExecutionPolicy
       PolicyDocument:
@@ -35,12 +32,15 @@ Resources:
           Effect: Allow
           Action:
             - "ecr:GetAuthorizationToken"
-              "ecr:BatchCheckLayerAvailability"
-              "ecr:GetDownloadUrlForLayer"
-              "ecr:BatchGetImage"
-              "logs:CreateLogStream"
-              "logs:PutLogEvents"
+            - "ecr:BatchCheckLayerAvailability"
+            - "ecr:GetDownloadUrlForLayer"
+            - "ecr:BatchGetImage"
+            - "logs:CreateLogStream"
+            - "logs:PutLogEvents"
           Resource: "*"
+      Roles:
+        -
+          Ref: ECSTaskExecutionRole
       
   WBIDVDefaultECSTask:
     Type: AWS::ECS::TaskDefinition
@@ -52,7 +52,7 @@ Resources:
           HealthCheck: 
             Command: 
               - CMD-SHELL
-                curl -f http://localhost || exit 1
+              - curl -f http://localhost || exit 1
             Interval: 30
             Retries: 5
             StartPeriod: 30
@@ -60,6 +60,10 @@ Resources:
           Image: wb-app/docker-images:latest
           LogConfiguration: 
             LogDriver: awslogs
+            Options:
+              awslogs-region: !Sub ${AWS::Region}
+              awslogs-group: !Sub /ecs/wb-fargate-container-${AWS::StackName}
+              awslogs-stream-prefix: /ecs
           MemoryReservation: 200
           Name: wb-fargate-container
           PortMappings: 
