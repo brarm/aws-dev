@@ -2,7 +2,7 @@
 
 import boto3
 import json
-import sys
+import os
 import jmespath
 import argparse
 
@@ -53,13 +53,15 @@ def get_ecs_params(template):
 
     print(input_parameters)
 
-    with open('test-parameters.json','w') as params_outfile:
+    template_name = os.path.splitext(os.path.basename(template))[0]
+    with open(template_name + '-parameters.json','w') as params_outfile:
         params_outfile.write(json.dumps(input_parameters, indent=4))
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--template', dest=template)
+    parser.add_argument('--template', dest='template', required=True)
     args = parser.parse_args()
+    return args
 
 if __name__ == '__main__':
     args = parse_args()
