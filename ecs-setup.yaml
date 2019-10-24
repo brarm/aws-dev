@@ -57,7 +57,7 @@ Resources:
             Retries: 5
             StartPeriod: 30
             Timeout: 60
-          Image: wb-app/docker-images:latest
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/wb-app/docker-images:latest"
           LogConfiguration: 
             LogDriver: awslogs
             Options:
@@ -70,5 +70,6 @@ Resources:
            - ContainerPort: 80
       Cpu: '1024'
       ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt ECSTaskExecutionRole.Arn
       Memory: '2048'
       NetworkMode: awsvpc

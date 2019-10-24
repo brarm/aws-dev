@@ -1,0 +1,170 @@
+Parameters:
+  DefaultVPC:
+    Type: 'List<AWS::EC2::VPC::Id>'
+
+  DefaultSubnets:
+    Type: 'List<AWS::EC2::Subnet::Id>'
+
+  DefaultSecurityGroup:
+    Type: 'List<AWS::EC2::SecurityGroup::Id>'
+
+Resources:
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Statement: 
+         - 
+          Effect: Allow
+          Principal:
+            Service:
+              - ecs-tasks.amazonaws.com
+          Action: sts:AssumeRole
+
+  ECSTaskExecutionPolicy:
+    Type: AWS::IAM::Policy
+    DependsOn: ECSTaskExecutionRole
+    Properties:
+      PolicyName: ECSTaskExecutionPolicy
+      PolicyDocument:
+        Statement:
+        -
+          Effect: Allow
+          Action:
+            - "ecr:GetAuthorizationToken"
+            - "ecr:BatchCheckLayerAvailability"
+            - "ecr:GetDownloadUrlForLayer"
+            - "ecr:BatchGetImage"
+            - "logs:CreateLogStream"
+            - "logs:PutLogEvents"
+            - "logs:CreateLogGroup"
+            - "logs:DescribeLogStreams"
+          Resource: "*"
+      Roles:
+        -
+          Ref: ECSTaskExecutionRole
+  
+  DefaultLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /ecs/wb-fargate-container-${AWS::StackName}
+
+  WBIDVDefaultECSTask:
+    Type: AWS::ECS::TaskDefinition
+    # DependsOn: ECSTaskExecutionPolicy
+    Properties: 
+      ContainerDefinitions: 
+        - Cpu: 256
+          Essential: true
+          HealthCheck: 
+            Command: 
+              - CMD-SHELL
+              - curl -f http://localhost || exit 1
+            Interval: 30
+            Retries: 5
+            StartPeriod: 30
+            Timeout: 60
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/wb-app/docker-images:latest"
+          LogConfiguration: 
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Sub ${AWS::Region}
+              awslogs-group: !Ref DefaultLogGroup
+              awslogs-stream-prefix: /ecs
+              awslogs-create-group: true
+          MemoryReservation: 200
+          Name: wb-fargate-container
+          PortMappings: 
+           - ContainerPort: 80
+      Cpu: '1024'
+      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt ECSTaskExecutionRole.Arn
+      Memory: '2048'
+      NetworkMode: awsvpc
+
+  WBIDVDefaultALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+      IpAddressType: ipv4
+      LoadBalancerAttributes:
+        - Key: access_logs.s3.enabled
+          Value: false
+        - Key: idle_timeout.timeout_seconds
+          Value: 300
+        - Key: routing.http2.enabled
+          Value: true
+        - Key: deletion_protection.enabled
+          Value: false
+      Name: IDV-fargate-ALB
+      Scheme: internet-facing
+      SecurityGroups: 
+        - !Select ['0', !Ref DefaultSecurityGroup]
+      Subnets: 
+        - !Select ['0', !Ref DefaultSubnets]
+        - !Select ['1', !Ref DefaultSubnets]
+      Type: application
+
+  # listener for default ALB
+  HTTPlistener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    # DependsOn: WBIDVDefaultTargetGroup
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn: !Ref WBIDVDefaultTargetGroup
+      LoadBalancerArn: !Ref WBIDVDefaultALB
+      Port: 80
+      Protocol: HTTP
+
+  WBIDVDefaultTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    DependsOn: WBIDVDefaultALB
+    Properties: 
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 120
+      HealthCheckPath: /
+      HealthCheckPort: traffic-port
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 60
+      HealthyThresholdCount: 5
+      Matcher: 
+        HttpCode: 200
+      Name: WB-fargate-target-group
+      Port: 80
+      Protocol: HTTP
+      TargetType: ip
+      UnhealthyThresholdCount: 2
+      VpcId: !Select ['0', !Ref DefaultVPC]
+
+  WBIDVDefaultECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties: 
+      ClusterName: wb-fargate-cluster
+
+  WBIDVDefaultECSService:
+    Type: AWS::ECS::Service
+    DependsOn: HTTPlistener
+    Properties: 
+      Cluster: !Ref WBIDVDefaultECSCluster
+      DesiredCount: 2
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      HealthCheckGracePeriodSeconds: 60
+      LaunchType: FARGATE
+      LoadBalancers: 
+        - ContainerPort: 80
+          ContainerName: wb-fargate-container
+          TargetGroupArn: !Ref WBIDVDefaultTargetGroup
+      NetworkConfiguration: 
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups: 
+            - !Select ['0', !Ref DefaultSecurityGroup]
+          Subnets: 
+            - !Select ['0', !Ref DefaultSubnets]
+            - !Select ['1', !Ref DefaultSubnets]
+      PlatformVersion: LATEST
+      SchedulingStrategy: REPLICA
+      ServiceName: wb-fargate-service
+      TaskDefinition: !Ref WBIDVDefaultECSTask
