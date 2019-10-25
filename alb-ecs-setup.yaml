@@ -168,3 +168,12 @@ Resources:
       SchedulingStrategy: REPLICA
       ServiceName: wb-fargate-service
       TaskDefinition: !Ref WBIDVDefaultECSTask
+
+  SGIngressRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties: 
+      CidrIp: 0.0.0.0/0
+      FromPort: 80
+      GroupId: !Select ['0', !Ref DefaultSecurityGroup]
+      IpProtocol: tcp
+      ToPort: 80
