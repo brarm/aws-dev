@@ -95,7 +95,7 @@ Resources:
           Value: true
         - Key: deletion_protection.enabled
           Value: false
-      Name: IDV-fargate-ALB
+      Name: idv-fargate-alb
       Scheme: internet-facing
       SecurityGroups: 
         - !Select ['0', !Ref DefaultSecurityGroup]
@@ -105,9 +105,8 @@ Resources:
       Type: application
 
   # listener for default ALB
-  HTTPlistener:
+  ALBHTTPlistener:
     Type: AWS::ElasticLoadBalancingV2::Listener
-    # DependsOn: WBIDVDefaultTargetGroup
     Properties:
       DefaultActions:
       - Type: forward
@@ -115,6 +114,17 @@ Resources:
       LoadBalancerArn: !Ref WBIDVDefaultALB
       Port: 80
       Protocol: HTTP
+
+  # ingress rule for default security group
+  # allows load balancer to listen on port 80
+  SGIngressRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties: 
+      CidrIp: 0.0.0.0/0
+      FromPort: 80
+      GroupId: !Select ['0', !Ref DefaultSecurityGroup]
+      IpProtocol: tcp
+      ToPort: 80
 
   WBIDVDefaultTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -143,7 +153,7 @@ Resources:
 
   WBIDVDefaultECSService:
     Type: AWS::ECS::Service
-    DependsOn: HTTPlistener
+    DependsOn: ALBHTTPlistener
     Properties: 
       Cluster: !Ref WBIDVDefaultECSCluster
       DesiredCount: 2
@@ -168,12 +178,3 @@ Resources:
       SchedulingStrategy: REPLICA
       ServiceName: wb-fargate-service
       TaskDefinition: !Ref WBIDVDefaultECSTask
-
-  SGIngressRule:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties: 
-      CidrIp: 0.0.0.0/0
-      FromPort: 80
-      GroupId: !Select ['0', !Ref DefaultSecurityGroup]
-      IpProtocol: tcp
-      ToPort: 80
