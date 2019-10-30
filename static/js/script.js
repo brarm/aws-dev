@@ -43,8 +43,9 @@ window.addEventListener('load', function() {
 	}, false);
 })();
 
-$('#kba-form').submit(function(e) {
+$('#send_kba').click(function(e) {
 	e.preventDefault();
+	e.stopImmediatePropagation();
 
 	var radios = document.getElementsByClassName("custom-control-input");
 
@@ -57,14 +58,14 @@ $('#kba-form').submit(function(e) {
 			kbaAnswer = parsedAnswer[1];
 			payload["outWalletAnswer" + questionNumber] = kbaAnswer;
 		}
-	}
+	};
 
 	// show the error page manually
 	// if the last selection on the page is chosen
 	var showFailed = false;
 	if(payload['outWalletAnswer5'] == 5) {
 		showFailed = true;
-	}
+	};
 
 	// console.log(payload);
 	$.ajax({
@@ -81,8 +82,8 @@ $('#kba-form').submit(function(e) {
  		error: function(XMLHttpRequest, textStatus, errorThrown) {
         	alert("Status: " + textStatus); alert("Error: " + errorThrown);
     	}
- 	})
-
+ 	});
+ 	return false;
 });
 
 $('#user-info-form').submit(function(e) {
