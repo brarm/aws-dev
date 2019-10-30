@@ -15,7 +15,7 @@ import json
 from functools import wraps
 from flask_cors import CORS
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 CORS(app)
 
 @app.route('/')
@@ -51,6 +51,10 @@ def kba_failed():
     message_lines = message.split(';;')
     print(message_lines)
     return render_template('kba-failed.html', message_lines=message_lines)
+
+@app.route('/static/js/script.js')
+def script_js():
+    return send_from_directory(app.static_folder, 'js/script.js', cache_timeout=0)
 
 @app.errorhandler(404)
 def not_found(error=None):
