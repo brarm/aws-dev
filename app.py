@@ -33,23 +33,34 @@ def kba_questions():
         raw_data = request.form
         kba_string = (raw_data.to_dict())['payload']
         kba_questions = json.loads(kba_string)['kba_questions']
+        sid = json.loads(kba_string)['pID_sessionID']
 
-        return render_template('kba-questions.html', kba_questions=kba_questions)
+        return render_template('kba-questions.html', kba_questions=kba_questions, sid=sid)
 
 @app.route('/kba-success', methods=['POST'])
 def kba_success():
     raw_data = request.form
-    # handle risk score parsing here
-    return render_template('kba-success.html')
+    resp_dict = json.loads((raw_data.to_dict())['payload'])
+    firstName = resp_dict['firstName']
+    lastName = resp_dict['lastName']
+    emailAddress = resp_dict['emailAddress']
+    address = f"{resp_dict['streetAddress']} {resp_dict['state']} {resp_dict['zip']}"
+
+
+    return render_template(
+                'kba-success.html', 
+                message_lines=[
+                    f'{firstName} {lastName} was verified succesfully',
+                    ' - The information on file -',
+                    f'Email: {emailAddress}',
+                    f'Address: {address}' ] 
+                )
 
 @app.route('/kba-failed', methods=['POST'])
 def kba_failed():
     raw_data = request.form
-    print(raw_data)
     message = (raw_data.to_dict())['payload']
-    print(message)
     message_lines = message.split(';;')
-    print(message_lines)
     return render_template('kba-failed.html', message_lines=message_lines)
 
 @app.errorhandler(404)

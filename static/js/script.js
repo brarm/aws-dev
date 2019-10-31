@@ -67,15 +67,21 @@ $('#send_kba').click(function(e) {
 		showFailed = true;
 	};
 
+	// retrieve sessionID from input field
+	var sessionID = $('#sid').val()
+
 	// console.log(payload);
 	$.ajax({
- 		url: "https://jkz8oxbu0m.execute-api.us-west-2.amazonaws.com/dev/kba-post",
+ 		url: "https://pv48iufl8k.execute-api.us-west-1.amazonaws.com/Test/kba-post",
  		type: "POST",
   		contentType: "application/json",
  		headers: {
  		    "Authorization": auth_string
  		},
- 		data : JSON.stringify({"answers":payload}),
+ 		data : JSON.stringify({
+ 			"answers":payload,
+ 			"sessionID": sessionID
+ 		}),
  		success: function(resp){
  			redirectFromKba(resp, showFailed);
  		},
@@ -127,7 +133,7 @@ $('#user-info-form').submit(function(e) {
  	};
 
  	$.ajax({
- 		url: "https://jkz8oxbu0m.execute-api.us-west-2.amazonaws.com/dev/pii-check-post",
+ 		url: "https://pv48iufl8k.execute-api.us-west-1.amazonaws.com/Test/pii-check-post",
  		type: "POST",
   		contentType: "json",
  		headers: {
@@ -144,8 +150,8 @@ $('#user-info-form').submit(function(e) {
 });
 
 function generateCognitoToken(callback) {
-	var clientId = "5k27059sppn76jln7il4t5vqpi";
-	var clientSecret = "n5ucvco322f2m3a55m6oplvqv2dgiqgkl70uuoi4qu9t5dc1bv6";
+	var clientId = "5q9usbn2uunrpbjo9h4celtknv";
+	var clientSecret = "t3pidsk30e7oruthjpcel4rjlvvoqm9fkgadtub654n3c20gt9b";
 
 	var clientString = clientId + ":" + clientSecret;
 	var encoded = btoa(clientString);
@@ -153,7 +159,7 @@ function generateCognitoToken(callback) {
 	var headerString = "Basic " + encoded;
 
 	$.ajax({
-		url: "https://warnerbros-idv-pilot-oauth2.auth.us-west-2.amazoncognito.com/oauth2/token",
+		url: "https://test-api-gw-auth.auth.us-east-1.amazoncognito.com/oauth2/token",
 		type: "POST",
 		data: "grant_type=client_credentials",
 		// async: false,
@@ -202,9 +208,9 @@ function redirectFromIDV(resp, firstName) {
 
 function redirectToKba(resp, firstName) {
 	alert("User " + firstName + " authenticated");
-	
+	console.log(resp);
 	var st = JSON.stringify(resp);
-	var origin = location.origin
+	var origin = location.origin;
 	var url = origin + '/kba-questions';
 
 	var form = document.createElement("form");
@@ -217,28 +223,31 @@ function redirectToKba(resp, firstName) {
 	kba.setAttribute("type", "text");
 	kba.setAttribute("name", "payload");
 	kba.setAttribute("value", st)
-	
 	form.appendChild(kba);
+	
 	$('body').append(form);
 	form.submit();
 }
 
 function redirectFromKba(resp, showFailed) {
+	console.log(resp)
 	var origin = location.origin;
 	var form = document.createElement("form");
 	var url = ''
 	form.setAttribute("method", "post");
 	form.setAttribute("style", "display:none")
 
+	user_verified = resp.passFailIndicator
+
 	if(showFailed) {
-		var message = 'The KBA was unsucessful. Please contact ZenDesk.'
+		var message = 'The KBA was unsucessful. Please contact Support.'
 		var url = origin + '/kba-failed';
 		var kbaResp = document.createElement("input");
 		kbaResp.setAttribute("type", "text");
 		kbaResp.setAttribute("name", "payload");
 		kbaResp.setAttribute("value", message)
 		form.appendChild(kbaResp)
-	} else if (resp.includes("success")) {
+	} else if (user_verified) {
 		var url = origin + '/kba-success';
 		var st = JSON.stringify(resp);
 		var kbaResp = document.createElement("input");
