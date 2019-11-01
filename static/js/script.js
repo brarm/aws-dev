@@ -67,10 +67,7 @@ $('#send_kba').click(function(e) {
 		showFailed = true;
 	};
 
-	// retrieve sessionID from input field
 	var sessionID = $('#sid').val()
-
-	// console.log(payload);
 	$.ajax({
  		url: "https://8u8jz76lsa.execute-api.us-west-1.amazonaws.com/dev/kba-post",
  		type: "POST",

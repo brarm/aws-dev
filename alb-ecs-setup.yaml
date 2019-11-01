@@ -8,6 +8,10 @@ Parameters:
   DefaultSecurityGroup:
     Type: 'List<AWS::EC2::SecurityGroup::Id>'
 
+  ECRName:
+      Type: String
+      Default: wb-app/docker-images
+
 Resources:
   ECSTaskExecutionRole:
     Type: AWS::IAM::Role
@@ -64,7 +68,7 @@ Resources:
             Retries: 5
             StartPeriod: 30
             Timeout: 60
-          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/wb-app/docker-images:latest"
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRName}:latest"
           LogConfiguration: 
             LogDriver: awslogs
             Options:
