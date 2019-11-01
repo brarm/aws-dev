@@ -7,6 +7,10 @@
 {% endblock main_message %}
 
 {% block sub_message %}
-<p>The user has passed the KBA Verification<br/>
-Click below to start another IDV Flow</p>
+{% for message_line in message_lines %}
+<div class="row justify-content-center">  
+	{{ message_line }}
+</div>
+{% endfor %}
+<p><br/>Click below to start another IDV Flow</p>
 {% endblock sub_message %}

@@ -67,15 +67,18 @@ $('#send_kba').click(function(e) {
 		showFailed = true;
 	};
 
-	// console.log(payload);
+	var sessionID = $('#sid').val()
 	$.ajax({
- 		url: "https://pv48iufl8k.execute-api.us-west-1.amazonaws.com/Test/kba-post",
+ 		url: "https://8u8jz76lsa.execute-api.us-west-1.amazonaws.com/dev/kba-post",
  		type: "POST",
   		contentType: "application/json",
  		headers: {
  		    "Authorization": auth_string
  		},
- 		data : JSON.stringify({"answers":payload}),
+ 		data : JSON.stringify({
+ 			"answers":payload,
+ 			"sessionID": sessionID
+ 		}),
  		success: function(resp){
  			redirectFromKba(resp, showFailed);
  		},
@@ -84,7 +87,6 @@ $('#send_kba').click(function(e) {
     	}
  	});
  	return false;
-
 });
 
 $('#user-info-form').submit(function(e) {
@@ -128,7 +130,7 @@ $('#user-info-form').submit(function(e) {
  	};
 
  	$.ajax({
- 		url: "https://pv48iufl8k.execute-api.us-west-1.amazonaws.com/Test/pii-check-post",
+ 		url: "https://8u8jz76lsa.execute-api.us-west-1.amazonaws.com/dev/pii-check-post",
  		type: "POST",
   		contentType: "json",
  		headers: {
@@ -203,9 +205,9 @@ function redirectFromIDV(resp, firstName) {
 
 function redirectToKba(resp, firstName) {
 	alert("User " + firstName + " authenticated");
-	
+	console.log(resp);
 	var st = JSON.stringify(resp);
-	var origin = location.origin
+	var origin = location.origin;
 	var url = origin + '/kba-questions';
 
 	var form = document.createElement("form");
@@ -218,28 +220,31 @@ function redirectToKba(resp, firstName) {
 	kba.setAttribute("type", "text");
 	kba.setAttribute("name", "payload");
 	kba.setAttribute("value", st)
-	
 	form.appendChild(kba);
+	
 	$('body').append(form);
 	form.submit();
 }
 
 function redirectFromKba(resp, showFailed) {
+	console.log(resp)
 	var origin = location.origin;
 	var form = document.createElement("form");
 	var url = ''
 	form.setAttribute("method", "post");
 	form.setAttribute("style", "display:none")
 
+	user_verified = resp.passFailIndicator
+
 	if(showFailed) {
-		var message = 'The KBA was unsucessful. Please contact ZenDesk.'
+		var message = 'The KBA was unsucessful. Please contact Support.'
 		var url = origin + '/kba-failed';
 		var kbaResp = document.createElement("input");
 		kbaResp.setAttribute("type", "text");
 		kbaResp.setAttribute("name", "payload");
 		kbaResp.setAttribute("value", message)
 		form.appendChild(kbaResp)
-	} else if (resp.includes("success")) {
+	} else if (user_verified) {
 		var url = origin + '/kba-success';
 		var st = JSON.stringify(resp);
 		var kbaResp = document.createElement("input");
