@@ -72,7 +72,7 @@ $('#send_kba').click(function(e) {
 
 	// console.log(payload);
 	$.ajax({
- 		url: "https://jkz8oxbu0m.execute-api.us-west-2.amazonaws.com/dev/kba-post",
+ 		url: "https://8u8jz76lsa.execute-api.us-west-1.amazonaws.com/dev/kba-post",
  		type: "POST",
   		contentType: "application/json",
  		headers: {
@@ -133,7 +133,7 @@ $('#user-info-form').submit(function(e) {
  	};
 
  	$.ajax({
- 		url: "https://jkz8oxbu0m.execute-api.us-west-2.amazonaws.com/dev/pii-check-post",
+ 		url: "https://8u8jz76lsa.execute-api.us-west-1.amazonaws.com/dev/pii-check-post",
  		type: "POST",
   		contentType: "json",
  		headers: {
@@ -150,8 +150,8 @@ $('#user-info-form').submit(function(e) {
 });
 
 function generateCognitoToken(callback) {
-	var clientId = "5k27059sppn76jln7il4t5vqpi";
-	var clientSecret = "n5ucvco322f2m3a55m6oplvqv2dgiqgkl70uuoi4qu9t5dc1bv6";
+	var clientId = "5q9usbn2uunrpbjo9h4celtknv";
+	var clientSecret = "t3pidsk30e7oruthjpcel4rjlvvoqm9fkgadtub654n3c20gt9b";
 
 	var clientString = clientId + ":" + clientSecret;
 	var encoded = btoa(clientString);
@@ -159,7 +159,7 @@ function generateCognitoToken(callback) {
 	var headerString = "Basic " + encoded;
 
 	$.ajax({
-		url: "https://warnerbros-idv-pilot-oauth2.auth.us-west-2.amazoncognito.com/oauth2/token",
+		url: "https://test-api-gw-auth.auth.us-east-1.amazoncognito.com/oauth2/token",
 		type: "POST",
 		data: "grant_type=client_credentials",
 		// async: false,
