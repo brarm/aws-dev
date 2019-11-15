@@ -25,6 +25,10 @@ def index():
         request.script_root = url_for('index', _external=True)
     return render_template('index.html')
 
+@app.route('/user-info')
+def user_info():
+    return render_template('user-info.html')
+
 @app.route('/kba-questions', methods=['POST', 'GET'])
 def kba_questions():
     if request.method == 'GET':

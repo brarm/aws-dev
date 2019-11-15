@@ -4,10 +4,12 @@ window.addEventListener('load', function() {
 	// set active link based on page title
 	var title = $('title').text();
 	var links = $('.nav-link');
-	if(title.includes("IDV")) {
+	if(title.includes("OneTrust")) {
 		links[0].parentElement.classList.add("active");
-	} else if (title.includes("KBA Form")) {
+	} else if(title.includes("IDV")) {
 		links[1].parentElement.classList.add("active");
+	} else if (title.includes("KBA Form")) {
+		links[2].parentElement.classList.add("active");
 	};
 })
 
@@ -19,9 +21,34 @@ window.addEventListener('load', function() {
 			return false;
 		}
 		auth_string = "Bearer " + resp["access_token"];
-		// console.log(auth_string)
+		console.log(auth_string)
 	});
 	return cognito_resp;
+});
+
+$( document ).ready(function() {
+    var title = $('title').text();
+    if(title.includes('IDV')) {
+    	var urlParams = new URLSearchParams(window.location.search);
+    	var refId = urlParams.get('ref');
+
+    	$.ajax({
+     		url: "https://8u8jz76lsa.execute-api.us-west-1.amazonaws.com/dev/retrieve-user-data?ref="+refId,
+     		type: "GET",
+     		success: function(resp){
+     			console.log(resp);
+     			$('input#firstName').val(resp.firstName);
+     			$('input#firstName').prop('readonly', true);
+     			$('input#lastName').val(resp.lastName);
+     			$('input#lastName').prop('readonly', true);
+     			$('input#email').val(resp.emailAddress);
+     			$('input#email').prop('readonly', true);
+     		},
+     		error: function(XMLHttpRequest, textStatus, errorThrown) {
+            	alert("Status: " + textStatus); alert("Error: " + errorThrown);
+        	}
+     	});
+    }
 });
 
 // Baisc JS to validate form entry
@@ -42,6 +69,63 @@ window.addEventListener('load', function() {
 		});
 	}, false);
 })();
+
+$('#send-onetrust-btn').click(function(e) {
+	e.preventDefault();
+
+	var validationFailed = false;
+
+	var form = document.getElementsByClassName('needs-validation')[0];
+	if (form.checkValidity() === false) {
+		validationFailed = true;
+	}
+
+	if (validationFailed) {
+		e.preventDefault();
+		e.stopPropagation();
+		return false;
+	}
+	var firstName = $('input#firstName').val();
+ 	var lastName = $('input#lastName').val();
+ 	var email = $('input#email').val();
+ 	var refId = makeid(8);
+
+ 	var onetrustInfo = {
+    	"requestRefID": refId,
+    	"email": email,
+    	"firstName": firstName,
+    	"lastName": lastName
+	};
+
+	$.ajax({
+ 		url: "https://8u8jz76lsa.execute-api.us-west-1.amazonaws.com/dev/onetrust-receive-data",
+ 		type: "POST",
+  		contentType: "json",
+  		"crossDomain": true,
+ 		headers: {
+ 		    'Content-Type': "application/json",
+ 		    "Accept": "*/*",
+    		'x-api-key': "YYBwQlSGnb0Wre0lPhJ32RzxPRPqTS35B8ekUD7f",
+ 		},
+ 		data : JSON.stringify(onetrustInfo),
+ 		success: function(resp){
+ 			alert('Check your email to continue the IDV process');
+ 		},
+ 		error: function(XMLHttpRequest, textStatus, errorThrown) {
+        	alert("Status: " + textStatus); alert("Error: " + errorThrown);
+    	}
+ 	});
+});
+
+function makeid(length) {
+   var result           = '';
+   var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+   var charactersLength = characters.length;
+   for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+};
 
 $('#send_kba').click(function(e) {
 	e.preventDefault();
@@ -69,7 +153,8 @@ $('#send_kba').click(function(e) {
 
 	var sessionID = $('#sid').val()
 	$.ajax({
- 		url: "https://d2pawxtbc2.execute-api.us-west-2.amazonaws.com/dev/kba-post",
+ 		// url: "https://d2pawxtbc2.execute-api.us-west-2.amazonaws.com/dev/kba-post",
+ 		url: "https://8u8jz76lsa.execute-api.us-west-1.amazonaws.com/dev/kba-post",
  		type: "POST",
   		contentType: "application/json",
  		headers: {
@@ -103,8 +188,11 @@ $('#user-info-form').submit(function(e) {
 		e.stopPropagation();
 		return false;
 	}
-	received = $('input');
+
+	var urlParams = new URLSearchParams(window.location.search);
+   	var refId = urlParams.get('ref');
 	
+	var emailAddress = $('input#email').val();
  	var firstName = $('input#firstName').val();
  	var lastName = $('input#lastName').val();
  	var middleInitial = $('input#middleInitial').val();
@@ -116,7 +204,11 @@ $('#user-info-form').submit(function(e) {
  	var ssn = $('input#ssn').val();
  	var dob = $('input#dob').val();
 
+ 	var sessionInfo = {
+ 		'refId': refId
+ 	}
  	var userInfo = {
+ 		"emailAddress" : emailAddress,
  		"firstName" : firstName,
  		"lastName" : lastName,
  		"middleInitial" : middleInitial,
@@ -130,13 +222,14 @@ $('#user-info-form').submit(function(e) {
  	};
 
  	$.ajax({
- 		url: "https://d2pawxtbc2.execute-api.us-west-2.amazonaws.com/dev/pii-check-post",
+ 		// url: "https://d2pawxtbc2.execute-api.us-west-2.amazonaws.com/dev/pii-check-post",
+ 		url: "https://8u8jz76lsa.execute-api.us-west-1.amazonaws.com/dev/pii-check-post",
  		type: "POST",
   		contentType: "json",
  		headers: {
  		    "Authorization": auth_string
  		},
- 		data : JSON.stringify({"user_info":userInfo}),
+ 		data : JSON.stringify({"session_info":sessionInfo, "user_info":userInfo}),
  		success: function(resp){
  			redirectFromIDV(resp, firstName);
  		},
@@ -147,8 +240,8 @@ $('#user-info-form').submit(function(e) {
 });
 
 function generateCognitoToken(callback) {
-	var clientId = "5k27059sppn76jln7il4t5vqpi";
-	var clientSecret = "n5ucvco322f2m3a55m6oplvqv2dgiqgkl70uuoi4qu9t5dc1bv6";
+	var clientId = "5q9usbn2uunrpbjo9h4celtknv";
+	var clientSecret = "t3pidsk30e7oruthjpcel4rjlvvoqm9fkgadtub654n3c20gt9b";
 
 	var clientString = clientId + ":" + clientSecret;
 	var encoded = btoa(clientString);
@@ -156,7 +249,7 @@ function generateCognitoToken(callback) {
 	var headerString = "Basic " + encoded;
 
 	$.ajax({
-		url: "https://warnerbros-idv-pilot-oauth2.auth.us-west-2.amazoncognito.com/oauth2/token",
+		url: "https://test-api-gw-auth.auth.us-east-1.amazoncognito.com/oauth2/token",
 		type: "POST",
 		data: "grant_type=client_credentials",
 		// async: false,
